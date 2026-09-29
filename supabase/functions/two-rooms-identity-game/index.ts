@@ -77,7 +77,7 @@ function normalizeNickname(value: unknown): { name: string; key: string } {
 }
 
 function validateDeck(capacity: number, ids: unknown): string[] {
-  if (!Number.isInteger(capacity) || capacity < 4 || capacity > 40) fail("invalid_capacity");
+  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 40) fail("invalid_capacity");
   if (!Array.isArray(ids) || ids.length !== capacity) fail("invalid_deck");
   const counts = new Map<string, number>();
   for (const id of ids) {

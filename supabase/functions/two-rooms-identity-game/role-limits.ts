@@ -2,8 +2,8 @@
 export const ROLE_LIMITS: Record<string, number> = {
   "president": 1,
   "bomber": 1,
-  "blue_team": 10,
-  "red_team": 10,
+  "blue_team": 40,
+  "red_team": 40,
   "gambler": 1,
   "blue_agent": 1,
   "red_agent": 1,

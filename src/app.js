@@ -15,6 +15,7 @@
   var pollTimer = null;
   var toastTimer = null;
   var revealTimer = null;
+  var revealPressActive = false;
 
   var elements = {
     views: Array.prototype.slice.call(document.querySelectorAll(".view")),
@@ -129,7 +130,7 @@
   }
 
   function fillCapacityOptions() {
-    for (var count = 4; count <= 40; count += 1) {
+    for (var count = 1; count <= 40; count += 1) {
       var option = document.createElement("option");
       option.value = String(count);
       option.textContent = String(count);
@@ -140,7 +141,7 @@
   function notifyApiError(error) {
     var messages = {
       invalid_room_code: "房间码需要是四位数字",
-      invalid_capacity: "玩家人数需要在 4 到 40 人之间",
+      invalid_capacity: "玩家人数需要在 1 到 40 人之间",
       invalid_deck: "角色牌数量或配置有误",
       invalid_nickname: "昵称不能为空，且最多 16 个字",
       nickname_taken: "这个昵称已经有人使用，请换一个",
@@ -264,8 +265,34 @@
       }
       return;
     }
-    var result = await callApi({ action: "getRoom", roomCode: code, playerToken: playerToken, ownerToken: getStored(code, "owner") || "" });
-    renderRoom(result.room);
+    try {
+      var result = await callApi({ action: "getRoom", roomCode: code, playerToken: playerToken, ownerToken: getStored(code, "owner") || "" });
+      renderRoom(result.room);
+    } catch (error) {
+      if (error.message !== "assignment_unavailable") throw error;
+      showIdentityLoading(code);
+    }
+  }
+
+  function showIdentityLoading(code) {
+    if (!elements.room.classList.contains("active")) showView("roomView");
+    currentRoom = currentRoom && currentRoom.roomCode === code ? currentRoom : {
+      roomCode: code, capacity: 0, playerCount: 0, players: [], isOwner: false, status: "dealt", ownRole: null
+    };
+    document.getElementById("roomCodeLabel").textContent = code;
+    document.getElementById("roomStatus").textContent = "身份正在加载…";
+    document.getElementById("waitingNote").hidden = true;
+    document.getElementById("startDealButton").hidden = true;
+    document.getElementById("identitySection").hidden = false;
+    document.getElementById("identityLoading").hidden = false;
+    document.getElementById("identityCover").classList.add("is-loading");
+    hideIdentity();
+    makeQr(code);
+    if (!pollTimer) {
+      pollTimer = window.setInterval(function () {
+        if (currentRoom) loadRoom(currentRoom.roomCode, false).catch(function () {});
+      }, POLL_MS);
+    }
   }
 
   function renderRoom(room) {
@@ -275,8 +302,9 @@
     var code = room.roomCode;
     if (window.location.search !== "?room=" + code) history.replaceState(null, "", window.location.pathname + "?room=" + code);
     document.getElementById("roomCodeLabel").textContent = code;
-    var full = room.playerCount >= room.capacity;
+    var full = room.playerCount === room.capacity;
     var dealt = room.status === "dealt";
+    var ownRoleReady = !!(room.ownRole && typeof room.ownRole.id === "string" && roleById[room.ownRole.id]);
     var status = document.getElementById("roomStatus");
     status.textContent = dealt ? "身份已锁定" : (full ? "玩家已到齐" : "等待玩家");
     status.classList.toggle("dealt", dealt);
@@ -295,12 +323,14 @@
     startButton.disabled = !full || busy;
     startButton.textContent = busy ? "正在发牌…" : (full ? "开始发牌" : "等玩家到齐后发牌");
     document.getElementById("lockNote").textContent = dealt ? "身份已锁定，刷新页面会取回同一张牌。" : "发牌后名单和身份都会锁定。";
-    document.getElementById("identitySection").hidden = !dealt || !room.ownRole;
-    if (room.ownRole) prepareIdentity(room.ownRole);
-    if (dealt) {
+    document.getElementById("identitySection").hidden = !dealt;
+    document.getElementById("identityLoading").hidden = !dealt || ownRoleReady;
+    document.getElementById("identityCover").classList.toggle("is-loading", dealt && !ownRoleReady);
+    if (ownRoleReady) prepareIdentity(room.ownRole);
+    else hideIdentity();
+    if (dealt && ownRoleReady) {
       window.clearInterval(pollTimer);
       pollTimer = null;
-      hideIdentity();
     } else if (!pollTimer) {
       pollTimer = window.setInterval(function () {
         if (currentRoom) loadRoom(currentRoom.roomCode, false).catch(function () {});
@@ -337,8 +367,9 @@
     }
   }
 
-  function prepareIdentity(roleId) {
-    var role = typeof roleId === "string" ? roleById[roleId] : roleById[roleId.id];
+  function prepareIdentity(ownRole) {
+    var roleId = typeof ownRole === "string" ? ownRole : (ownRole && ownRole.id);
+    var role = roleById[roleId];
     if (!role) return;
     var colors = {
       blue: ["#587797", "#e2e9ed"],
@@ -356,19 +387,18 @@
     document.getElementById("roleNameZh").textContent = role.nameZh;
     document.getElementById("roleNameEn").textContent = role.nameEn;
     document.getElementById("roleAbility").textContent = role.ability;
-    card.hidden = true;
-    document.getElementById("identityCover").classList.remove("is-revealed");
+    hideIdentity();
   }
 
   function revealIdentity() {
-    if (!currentRoom || currentRoom.status !== "dealt" || !currentRoom.ownRole) return;
+    if (!revealPressActive || !currentRoom || currentRoom.status !== "dealt" || !currentRoom.ownRole || !roleById[currentRoom.ownRole.id]) return;
     var card = document.getElementById("identityCard");
-    if (card.hidden) return;
     card.hidden = false;
     document.getElementById("identityCover").classList.add("is-revealed");
   }
 
   function hideIdentity() {
+    revealPressActive = false;
     window.clearTimeout(revealTimer);
     revealTimer = null;
     document.getElementById("identityCard").hidden = true;
@@ -377,9 +407,17 @@
 
   function beginReveal(event) {
     if (event && event.cancelable) event.preventDefault();
-    if (!currentRoom || currentRoom.status !== "dealt") return;
+    if (revealPressActive || !currentRoom || currentRoom.status !== "dealt" || !currentRoom.ownRole || !roleById[currentRoom.ownRole.id]) return;
+    revealPressActive = true;
     window.clearTimeout(revealTimer);
-    revealTimer = window.setTimeout(revealIdentity, 420);
+    revealTimer = window.setTimeout(function () {
+      revealTimer = null;
+      revealIdentity();
+    }, 420);
+  }
+
+  function endReveal() {
+    hideIdentity();
   }
 
   function copyInvite() {
@@ -426,20 +464,22 @@
   document.getElementById("startDealButton").addEventListener("click", startDeal);
 
   var revealButton = document.getElementById("revealButton");
-  revealButton.addEventListener("pointerdown", function (event) {
-    if (revealButton.setPointerCapture) {
-      try { revealButton.setPointerCapture(event.pointerId); } catch (error) {}
-    }
-    beginReveal(event);
+  revealButton.addEventListener("mousedown", function (event) {
+    if (event.button === 0) beginReveal(event);
   });
-  window.addEventListener("pointerup", hideIdentity);
-  window.addEventListener("pointercancel", hideIdentity);
-  revealButton.addEventListener("pointerleave", hideIdentity);
+  window.addEventListener("mouseup", endReveal);
+  revealButton.addEventListener("touchstart", beginReveal, { passive: false });
+  window.addEventListener("touchend", endReveal);
+  window.addEventListener("touchcancel", endReveal);
+  document.getElementById("identityFrame").addEventListener("mouseleave", function () {
+    if (revealPressActive) endReveal();
+  });
+  revealButton.addEventListener("click", function (event) { event.preventDefault(); });
   revealButton.addEventListener("keydown", function (event) {
     if ((event.key === " " || event.key === "Enter") && !event.repeat) beginReveal(event);
   });
   window.addEventListener("keyup", function (event) {
-    if (event.key === " " || event.key === "Enter") hideIdentity();
+    if (event.key === " " || event.key === "Enter") endReveal();
   });
   revealButton.addEventListener("contextmenu", function (event) { event.preventDefault(); });
   window.addEventListener("blur", hideIdentity);

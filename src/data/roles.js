@@ -22,8 +22,8 @@ function role(id, nameZh, nameEn, allegiance, cardColor, ability, maxCount, isAd
 const roles = [
   role("president", "总统", "President", "blue", "blue", "蓝队核心角色。游戏结束时若总统没有因炸弹客而死亡，蓝队达成基础胜利条件。", 1, false),
   role("bomber", "炸弹客", "Bomber", "red", "red", "红队核心角色。游戏结束时若与总统处于同一房间，总统死亡，红队达成基础胜利条件。", 1, false),
-  role("blue_team", "蓝队队员", "Blue Team", "blue", "blue", "蓝队普通成员，与蓝队共享基础胜利条件。", 10, false),
-  role("red_team", "红队队员", "Red Team", "red", "red", "红队普通成员，与红队共享基础胜利条件。", 10, false),
+  role("blue_team", "蓝队队员", "Blue Team", "blue", "blue", "蓝队普通成员，与蓝队共享基础胜利条件。", 40, false),
+  role("red_team", "红队队员", "Red Team", "red", "red", "红队普通成员，与红队共享基础胜利条件。", 40, false),
   role("gambler", "赌徒", "Gambler", "gray", "gray", "最终公开身份前，公开预测本局获胜方是红队、蓝队或两者皆非；预测正确才获胜。", 1, false),
 ];
 

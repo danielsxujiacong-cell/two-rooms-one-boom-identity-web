@@ -3,13 +3,15 @@
 ## 当前状态
 
 - **更新：** 2026-09-29
-- **状态：** 已部署到 GitHub Pages；Supabase 云端四人发牌验收通过
-- **已完成：** 原样复制并校验角色库；静态页面、二维码、RLS 迁移和 Edge Function 已部署；现有 `lanlan-cloud-pet` 仅增加本项目前缀资源；四名模拟玩家建房、加入、发牌、各自身份读取、重复读取稳定、重复发牌幂等、发牌后锁房通过；直接查询 assignments 表返回 401；GitHub Actions 部署成功，公网页面与关键静态资源 HTTP 200。本轮验收新建的两个 QA 房间均不含真实资料，其中一个完成发牌、另一个留在等待状态。
+- **状态：** Supabase `lanlan-cloud-pet` 云端人数限制与 `two-rooms-identity-game` Edge Function 已更新；本地前端改动尚未发布到 GitHub Pages。
+- **已完成：** 云端只修改 `two_rooms_identity_rooms` 的容量/牌数校验及 `two_rooms_identity_create_room` RPC 数值限制；容量与牌数范围为 1–40，普通红蓝队上限为 40。未改表结构或其他业务资源。Edge Function 已部署，`verify_jwt=false` 保持不变。
+- **真实 1 人房：** 房间 5065，房主单人入座、选择 1 张角色、发牌、刷新恢复本人身份、鼠标按住显示及松开遮挡均通过。
+- **真实 4 人房：** QA 房间 7335，4/4、已发牌；刷新后房主能读取并仅查看自己的身份，按住/松开行为通过。房间中的其他玩家只验证名单，未读取其身份。
+- **触摸事件：** 在线房间页面的 `touchstart`、`touchend`、`touchcancel` 事件路径通过仿真；未使用实体手机验收。
+- **迁移方式：** 该项目云端没有 `supabase_migrations` 历史表，使用已关联项目的 Supabase Management API 直接执行单一新迁移；未创建迁移历史表。不要直接 `db push`，否则旧基线迁移会尝试重新创建现有资源。
+- **本地验证：** `npm run validate:roles`、`node --check src/app.js`、`git diff --check` 通过。
 
 ## 下一步
 
-1. 可在多个独立浏览器会话中补做完整 UI 加入/长按查看演示；本次四人逻辑和隐私通过独立玩家凭据的云端 API 验收。
-
-## 尚未核实
-
-- 尚未在四个独立图形浏览器会话中完成 UI 流程验收；服务器端四名独立玩家凭据的建房、发牌、隔离和重读已通过。
+1. 如需让公开 GitHub Pages 页面也提供 1–40 人选择，发布当前未提交的前端改动。
+2. 如需实体手机验收，在手机浏览器访问已更新的页面，实测按住和松手遮挡。

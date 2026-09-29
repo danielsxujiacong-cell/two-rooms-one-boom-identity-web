@@ -161,8 +161,10 @@ button { color: inherit; }
 .identity-question { width: 62px; height: 62px; display: grid; place-items: center; margin-bottom: 13px; border: 1px solid #d5caba; border-radius: 50%; color: var(--red); font: 30px "DM Mono", monospace; }
 .identity-cover > strong { font-size: 14px; }
 .identity-cover > span { margin-top: 5px; color: var(--muted); font-size: 10px; }
+.identity-loading { margin: 0; color: var(--muted); font-size: 11px; }
 .reveal-button { margin-top: 16px; min-width: 154px; min-height: 39px; border: 1px solid #c8b8a3; border-radius: 4px; color: var(--ink); background: #fffaf0; font-size: 11px; cursor: pointer; touch-action: none; }
 .identity-cover.is-revealed .identity-question, .identity-cover.is-revealed > strong, .identity-cover.is-revealed > span, .identity-cover.is-revealed .reveal-button { display: none; }
+.identity-cover.is-loading .identity-question, .identity-cover.is-loading > strong, .identity-cover.is-loading > span, .identity-cover.is-loading .reveal-button { display: none; }
 .identity-card { width: 100%; min-height: 232px; padding: 18px 15px 13px; border: 2px solid var(--role-accent, var(--blue)); border-radius: 7px; background: #fffdf8; text-align: left; }
 .faction-badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 99px; padding: 5px 9px; color: var(--role-accent, var(--blue-dark)); background: var(--role-tint, var(--blue-soft)); font-size: 10px; font-weight: 700; }
 .identity-card-label { margin: 15px 0 1px; color: #989083; font: 9px "DM Mono", monospace; letter-spacing: .16em; }
