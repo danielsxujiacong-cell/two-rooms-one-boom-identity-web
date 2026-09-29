@@ -1,0 +1,16 @@
+{
+  "name": "two-rooms-one-boom-identity-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "《两室一弹》私密身份发放网页版 MVP",
+  "scripts": {
+    "build:qr": "node scripts/build-qr.mjs",
+    "generate:role-limits": "node scripts/generate-role-limits.mjs",
+    "validate:roles": "node scripts/validate-roles.mjs",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.5",
+    "qrcode": "1.5.4"
+  }
+}

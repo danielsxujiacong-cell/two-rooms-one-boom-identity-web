@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f0e7">
+  <meta name="description" content="《两室一弹》身份发放：创建牌局、加入牌局，私密查看你的身份。">
+  <title>两室一弹 · 身份发放</title>
+  <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+  <div class="paper-grain" aria-hidden="true"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <button class="wordmark" id="goHome" aria-label="返回首页">
+        <span class="wordmark-icon" aria-hidden="true"><i></i><b></b></span>
+        <span>两室一弹<span class="wordmark-sub">身份发放</span></span>
+      </button>
+      <span class="edition">房间版 · MVP</span>
+    </header>
+
+    <section class="view active" id="homeView">
+      <div class="home-hero">
+        <div class="hero-stamp"><span>NO. 01</span><span>秘密入场</span></div>
+        <p class="eyebrow">THE GAME BEGINS IN SECRET</p>
+        <h1>身份，只让<br><span>你自己</span>看到。</h1>
+        <p class="hero-copy">选好角色，叫上玩家。<br>发牌之后，轻轻按住，看看你是谁。</p>
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-card red-card"><span>红</span><small>ROOM A</small></div>
+          <div class="hero-card blue-card"><span>蓝</span><small>ROOM B</small></div>
+          <div class="hero-burst">嘭！</div>
+        </div>
+      </div>
+      <div class="home-actions">
+        <button class="button primary full" id="createEntry"><span>创建牌局</span><span aria-hidden="true">↗</span></button>
+        <button class="button secondary full" id="joinEntry"><span>加入牌局</span><span aria-hidden="true">→</span></button>
+        <p class="micro-note"><span class="dot red-dot"></span>身份在松手后立即遮挡<span class="dot blue-dot"></span></p>
+      </div>
+    </section>
+
+    <section class="view" id="createView">
+      <div class="page-heading">
+        <button class="back-link" data-go="homeView">← 返回</button>
+        <p class="eyebrow">SET THE TABLE</p>
+        <h1>准备这场牌局</h1>
+        <p>选好人数，再把每张角色牌放进牌堆。</p>
+      </div>
+      <div class="capacity-panel panel">
+        <label for="playerCapacity">玩家人数</label>
+        <div class="capacity-control">
+          <span class="capacity-ornament" aria-hidden="true">✦</span>
+          <select id="playerCapacity" aria-label="选择玩家人数"></select>
+          <span>人</span>
+        </div>
+      </div>
+      <div class="deck-meter">
+        <div><span class="eyebrow">CARD COUNT</span><strong id="deckCount">已选 0 / 4</strong></div>
+        <div class="meter-track"><span id="meterFill"></span></div>
+        <p id="deckHint">牌堆里的卡牌数量需要与玩家人数相同。</p>
+      </div>
+      <div id="rolePicker"></div>
+      <div class="sticky-footer">
+        <button class="button primary full" id="createRoomButton" disabled>牌数不符，无法创建</button>
+      </div>
+    </section>
+
+    <section class="view" id="joinView">
+      <div class="page-heading">
+        <button class="back-link" data-go="homeView">← 返回</button>
+        <p class="eyebrow">TAKE A SEAT</p>
+        <h1>加入牌局</h1>
+        <p>输入房主分享的房间码和你的昵称。</p>
+      </div>
+      <form class="join-form panel" id="joinForm">
+        <label for="roomCodeInput">四位房间码</label>
+        <input id="roomCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="4" pattern="[0-9]{4}" placeholder="例如 4826" required>
+        <label for="nicknameInput">游戏昵称</label>
+        <input id="nicknameInput" maxlength="16" autocomplete="nickname" placeholder="最多 16 个字" required>
+        <button class="button primary full" type="submit" id="joinRoomButton">加入这场牌局 <span aria-hidden="true">→</span></button>
+      </form>
+      <p class="fine-print">同一牌局昵称需要不同。身份令牌只保存在当前浏览器，用来在刷新后取回你的那张牌。</p>
+    </section>
+
+    <section class="view" id="roomView">
+      <div class="room-topline">
+        <button class="back-link" data-go="homeView">退出牌局</button>
+        <span class="status-pill" id="roomStatus">等待玩家</span>
+      </div>
+      <div class="room-heading">
+        <p class="eyebrow">YOUR SECRET TABLE</p>
+        <h1>房间 <span id="roomCodeLabel">----</span></h1>
+        <button class="copy-link" id="copyInvite">复制邀请链接</button>
+      </div>
+      <div class="room-layout">
+        <div class="panel roster-panel">
+          <div class="panel-title"><h2>入座名单</h2><strong id="rosterCount">已加入 1 / 4</strong></div>
+          <div class="roster-progress"><span id="rosterFill"></span></div>
+          <ol class="roster" id="rosterList"></ol>
+          <div class="waiting-note" id="waitingNote"><span class="waiting-pulse"></span>等大家入座后，房主开始发牌。</div>
+          <button class="button primary full" id="startDealButton" hidden disabled>开始发牌</button>
+          <p class="lock-note" id="lockNote">发牌后身份与名单都会锁定。</p>
+        </div>
+        <aside class="panel qr-panel">
+          <p class="eyebrow">SCAN TO JOIN</p>
+          <div class="qr-frame"><canvas id="roomQr" width="196" height="196" aria-label="加入牌局二维码"></canvas></div>
+          <strong>扫码加入</strong>
+          <span>或输入上方四位房间码</span>
+        </aside>
+      </div>
+      <div class="identity-section" id="identitySection" hidden>
+        <div class="identity-intro"><span class="eyebrow">YOUR PRIVATE ROLE</span><h2>只属于你的身份</h2><p>确认周围没人后，按住卡片查看。</p></div>
+        <div class="identity-frame" id="identityFrame">
+          <div class="identity-cover" id="identityCover">
+            <div class="identity-question" aria-hidden="true">?</div>
+            <strong>这张牌，只给你看</strong>
+            <span>长按查看身份 · 松手重新遮挡</span>
+            <button class="reveal-button" id="revealButton" aria-label="长按查看身份">按住查看身份</button>
+            <article class="identity-card" id="identityCard" hidden>
+              <span class="faction-badge" id="factionBadge"></span>
+              <p class="identity-card-label">YOUR ROLE</p>
+              <h3 id="roleNameZh"></h3>
+              <p class="role-name-en" id="roleNameEn"></p>
+              <div class="identity-rule"></div>
+              <p class="role-ability" id="roleAbility"></p>
+              <span class="identity-hide-hint">松手 · 立即遮挡</span>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer"><span>一间屋子，一个炸弹，许多秘密。</span><span>EST. 2014 · TWO ROOMS & A BOOM</span></footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="src/config.js"></script>
+  <script>window.module = { exports: {} };</script>
+  <script src="src/data/roles.js"></script>
+  <script src="assets/vendor/qrcode.min.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+project_id = "vjqsorzsilxblufpdxxc"
+
+[functions.two-rooms-identity-game]
+verify_jwt = false
