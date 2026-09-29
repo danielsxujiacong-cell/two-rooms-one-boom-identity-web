@@ -3,15 +3,12 @@
 ## 当前状态
 
 - **更新：** 2026-09-29
-- **状态：** Supabase `lanlan-cloud-pet` 云端人数限制与 `two-rooms-identity-game` Edge Function 已更新；本地前端改动尚未发布到 GitHub Pages。
-- **已完成：** 云端只修改 `two_rooms_identity_rooms` 的容量/牌数校验及 `two_rooms_identity_create_room` RPC 数值限制；容量与牌数范围为 1–40，普通红蓝队上限为 40。未改表结构或其他业务资源。Edge Function 已部署，`verify_jwt=false` 保持不变。
-- **真实 1 人房：** 房间 5065，房主单人入座、选择 1 张角色、发牌、刷新恢复本人身份、鼠标按住显示及松开遮挡均通过。
-- **真实 4 人房：** QA 房间 7335，4/4、已发牌；刷新后房主能读取并仅查看自己的身份，按住/松开行为通过。房间中的其他玩家只验证名单，未读取其身份。
-- **触摸事件：** 在线房间页面的 `touchstart`、`touchend`、`touchcancel` 事件路径通过仿真；未使用实体手机验收。
-- **迁移方式：** 该项目云端没有 `supabase_migrations` 历史表，使用已关联项目的 Supabase Management API 直接执行单一新迁移；未创建迁移历史表。不要直接 `db push`，否则旧基线迁移会尝试重新创建现有资源。
-- **本地验证：** `npm run validate:roles`、`node --check src/app.js`、`git diff --check` 通过。
+- **状态：** 本地“长按查看身份”按钮位置调整完成，验证通过，GitHub Pages 尚待发布。
+- **改动范围：** 身份卡正文与遮挡层不再包含触发按钮；独立的“长按查看”按钮位于卡片下方。按钮只在本房间已发牌且当前玩家身份加载完成时显示。鼠标按下/松开、touchstart/touchend/touchcancel、点击拦截及失焦遮挡逻辑仍绑定该按钮，无身份读取、Supabase、房间、发牌或二维码改动。
+- **云端既有状态：** `two-rooms-identity-game` 与 1–40 人限制此前已更新；表结构及隐私逻辑未改。1 人房 5065 和 4 人房 7335 的先前云端验收记录保持有效。
+- **本地检查：** 四人 QA 房 7335 刷新后恢复 4/4 房间及当前浏览器玩家的身份数据。手机宽度与电脑宽度截图均显示独立按钮位于正文卡下方；普通点击后身份保持遮挡。`npm run validate:roles`、`node --check src/app.js` 和 `git diff --check` 通过。触控与鼠标按住事件已核对绑定位置；CUA 拖动仅能核实释放后遮挡，未能截取按住期间的显示状态，也未连接实体手机。
 
 ## 下一步
 
-1. 如需让公开 GitHub Pages 页面也提供 1–40 人选择，发布当前未提交的前端改动。
-2. 如需实体手机验收，在手机浏览器访问已更新的页面，实测按住和松手遮挡。
+1. 提交并推送 `main`。
+2. 等 GitHub Pages 部署成功后打开公网页面，核实发布内容与按钮布局。

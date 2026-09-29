@@ -285,6 +285,7 @@
     document.getElementById("startDealButton").hidden = true;
     document.getElementById("identitySection").hidden = false;
     document.getElementById("identityLoading").hidden = false;
+    document.getElementById("revealButton").hidden = true;
     document.getElementById("identityCover").classList.add("is-loading");
     hideIdentity();
     makeQr(code);
@@ -325,6 +326,7 @@
     document.getElementById("lockNote").textContent = dealt ? "身份已锁定，刷新页面会取回同一张牌。" : "发牌后名单和身份都会锁定。";
     document.getElementById("identitySection").hidden = !dealt;
     document.getElementById("identityLoading").hidden = !dealt || ownRoleReady;
+    document.getElementById("revealButton").hidden = !dealt || !ownRoleReady;
     document.getElementById("identityCover").classList.toggle("is-loading", dealt && !ownRoleReady);
     if (ownRoleReady) prepareIdentity(room.ownRole);
     else hideIdentity();
