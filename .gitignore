@@ -8,6 +8,7 @@
 # Project-local tools and Supabase state
 /.cache/
 /node_modules/
+/_site/
 /supabase/.temp/
 /supabase/functions/.env
 
