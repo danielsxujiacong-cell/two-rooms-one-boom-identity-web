@@ -4,9 +4,11 @@
 
 ## 状态
 
-- **阶段：** MVP 已完成并连接现有 Supabase 项目；GitHub 仓库与 Pages 发布待完成
+- **阶段：** MVP 已上线 GitHub Pages，并连接现有 Supabase 项目
 - **主要入口：** index.html
 - **角色库：** 原样复用已校验的 93 个高级角色和 5 个基础角色类型
+- **在线体验：** https://danielsxujiacong-cell.github.io/two-rooms-one-boom-identity-web/
+- **公开仓库：** https://github.com/danielsxujiacong-cell/two-rooms-one-boom-identity-web
 
 ## 本地运行
 

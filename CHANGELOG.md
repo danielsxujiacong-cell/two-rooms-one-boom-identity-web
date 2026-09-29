@@ -8,4 +8,4 @@
 - 本地浏览器验证 4/4 牌数和 390px 手机布局。
 - 在现有 lanlan-cloud-pet 部署隔离迁移与 two-rooms-identity-game；RLS 拒绝 anon/authenticated 直接访问。
 - 四名独立玩家完成云端建房、加入、服务端随机发牌、个人身份读取及刷新稳定性验收；发牌后锁房、重试不重洗通过。
-- GitHub 公共仓库及 Pages 发布待完成。
+- 创建公开仓库并成功发布 GitHub Pages；公网首页与关键静态资源返回 HTTP 200。
